@@ -29,28 +29,28 @@
             <div class="modal-box">
                 <h3 class="font-bold text-lg">Adicione uma nova venda</h3>
 
-                <div v-for="(item, index) in produtosGrupo" :key="index">
+                <div v-for="(item, index) in this.produtosGrupo" :key="index">
                     <div class="form-control w-full">
                         <label class="label">
                             <span class="label-text">Produto:</span>
                         </label>
-                        <select @click="getValorProduto(item)" v-model="item.id_produto"
+                        <select @click="this.getValorProduto(item)" v-model="item.id_produto"
                             class="select select-bordered w-full">
                             <option value="0">Selecione um produto</option>
-                            <option v-for="tipo in produtos" :key="tipo.id" :value="tipo.id">{{ tipo.nome }}</option>
+                            <option v-for="tipo in this.produtos" :key="tipo.id" :value="tipo.id">{{ tipo.nome }}</option>
                         </select>
                     </div>
                     <div class="form-control w-full">
                         <label class="label">
                             <span class="label-text">Quantidade:</span>
                         </label>
-                        <input @keyup="getValorTotalProduto(item)" v-model="item.quantidade" type="number"
+                        <input @keyup="this.getValorTotalProduto(item)" v-model="item.quantidade" type="number"
                             placeholder="Quantidade" class="input input-bordered w-full" />
                     </div>
                     <div class="flex justify-between mt-2">
                         <div>
-                            <button @click="addProduct" class="mr-3 text-md">Adicionar</button>
-                            <button @click="removeProduct(index)">Remover</button>
+                            <button @click="this.addProduct" class="mr-3 text-md">Adicionar</button>
+                            <button @click="this.removeProduct(index)">Remover</button>
                         </div>
                         <span class="text-md">Total produto (com impostos): {{ item.total }}</span>
                     </div>
@@ -64,7 +64,7 @@
                 </div>
                 <div class="modal-action">
                     <label for="modal_insert_venda" class="btn">Fechar</label>
-                    <label class="btn" @click="saveVenda()">Salvar</label>
+                    <label class="btn" @click="this.saveVenda()">Salvar</label>
                 </div>
             </div>
         </div>
@@ -82,7 +82,7 @@
                 </div>
             </div>
             <div class="overflow-x-auto">
-                <div v-if="items[0]">
+                <div v-if="this.items[0]">
                     <table class="table table-zebra">
                         <thead>
                             <tr>
@@ -93,7 +93,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="item in items" :key="item.id">
+                            <tr v-for="item in this.items" :key="item.id">
                                 <td>{{ item.id }}</td>
                                 <td>R${{ item.total_venda }}</td>
                                 <td>{{ item.total_impostos }}%</td>
@@ -142,17 +142,17 @@ export default {
     },
     methods: {
         getProdutos() {
-            axios.get(this.apiProdutos).then((res) => {
+            axios.get(this.apiProdutos).then((res: any) => {
                 this.produtos = res.data['dados']
-            }).catch((error) => {
-                console.error("Erro na solicitação:", error);
+            }).catch(() => {
+                console.error("Erro na solicitação:");
             });
         },
         getVendas() {
-            axios.get(this.apiVendas).then((res) => {
+            axios.get(this.apiVendas).then((res: any) => {
                 this.items = res.data['dados']
-            }).catch((error) => {
-                console.error("Erro na solicitação:", error);
+            }).catch(() => {
+                console.error("Erro na solicitação:");
             });
         },
         addProduct() {
@@ -164,21 +164,21 @@ export default {
         saveVenda() {
             console.log(this.produtosGrupo)
         },
-        getValorProduto(objeto) {
+        getValorProduto(objeto: any) {
             objeto.valor_total = 0
 
             if (objeto.id_produto) {
-                axios.get(this.apiProdutos + '/' + objeto.id_produto).then((res) => {
+                axios.get(this.apiProdutos + '/' + objeto.id_produto).then((res: any) => {
                     objeto.valor_total = res.data['dados'][0]['total'] == '0.00' ? res.data['dados'][0]['preco'] : res.data['dados'][0]['total']
                     objeto.valor_imposto = res.data['dados'][0]['valor_imposto']
                     objeto.valor_item = res.data['dados'][0]['preco']
                     this.getValorTotalProduto(objeto)
-                }).catch((error) => {
+                }).catch(() => {
                     this.openModalError()
                 });
             }
         },
-        getValorTotalProduto(objeto) {
+        getValorTotalProduto(objeto: any) {
             objeto.total = objeto.quantidade * (objeto.valor_total ? objeto.valor_total : objeto.valor_item)
             objeto.total = Number(objeto.total).toFixed(2)
             this.calculaTotalVenda()
@@ -186,7 +186,7 @@ export default {
         calculaTotalVenda() {
             let total_impostos = 0
             let total_venda = 0
-            this.produtosGrupo.forEach(element => {
+            this.produtosGrupo.forEach((element: any) => {
                 total_impostos += element.valor_imposto * element.quantidade
                 total_venda += element.valor_item * element.quantidade
                 console.log(element)
@@ -196,13 +196,13 @@ export default {
             this.total_venda = total_venda.toFixed(2)
         },
         openModalSuccess() {
-            let labelElement = document.querySelector('label[for="modal_success"]');
+            let labelElement: any = document.querySelector('label[for="modal_success"]');
             if (labelElement) {
                 labelElement.click();
             }
         },
         openModalError() {
-            let labelElement = document.querySelector('label[for="modal_error"]');
+            let labelElement: any = document.querySelector('label[for="modal_error"]');
             if (labelElement) {
                 labelElement.click();
             }

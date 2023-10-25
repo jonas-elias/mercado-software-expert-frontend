@@ -36,33 +36,33 @@
                     <label class="label">
                         <span class="label-text">Nome:</span>
                     </label>
-                    <input type="text" v-model="nome" placeholder="Nome" class="input input-bordered w-full" />
+                    <input type="text" v-model="this.nome" placeholder="Nome" class="input input-bordered w-full" />
                 </div>
                 <div class="form-control w-full">
                     <label class="label">
                         <span class="label-text">Descrição:</span>
                     </label>
-                    <input type="text" v-model="descricao" placeholder="Descrição" class="input input-bordered w-full" />
+                    <input type="text" v-model="this.descricao" placeholder="Descrição" class="input input-bordered w-full" />
                 </div>
                 <div class="form-control w-full">
                     <label class="label">
                         <span class="label-text">Preço:</span>
                     </label>
-                    <input type="number" v-model="preco" placeholder="Preço" class="input input-bordered w-full" />
+                    <input type="number" v-model="this.preco" placeholder="Preço" class="input input-bordered w-full" />
                 </div>
                 <div class="form-control w-full">
                     <label class="label">
                         <span class="label-text">Tipo produto:</span>
                     </label>
-                    <select v-model="id_tipo_produto" class="select select-bordered w-full">
+                    <select v-model="this.id_tipo_produto" class="select select-bordered w-full">
                         <option value="0">Selecione um tipo de produto</option>
-                        <option v-for="tipo in tipos_produtos" :key="tipo.id" :value="tipo.id">{{ tipo.nome }}</option>
+                        <option v-for="tipo in this.tipos_produtos" :key="tipo.id" :value="tipo.id">{{ tipo.nome }}</option>
                     </select>
                 </div>
                 <div class="modal-action">
                     <label for="modal_insert_produto" class="btn">Fechar</label>
                     <label for="modal_insert_produto" class="btn"
-                        @click="this.insert ? saveProduto() : updateProduto()">Salvar</label>
+                        @click="this.insert ? this.saveProduto() : this.updateProduto()">Salvar</label>
                 </div>
             </div>
         </div>
@@ -74,7 +74,7 @@
                 <h4>Você tem certeza que deseja excluir o item?</h4>
                 <div class="modal-action">
                     <label for="modal_delete" class="btn">Fechar</label>
-                    <label for="modal_delete" class="btn" @click="deleteProduto()">Excluir</label>
+                    <label for="modal_delete" class="btn" @click="this.deleteProduto()">Excluir</label>
                 </div>
             </div>
         </div>
@@ -83,7 +83,7 @@
             <div class="flex justify-between items-center">
                 <h1 class="text-lg">Produtos</h1>
                 <div>
-                    <label @click="create()" class="btn btn-md btn-primary" for="modal_insert_produto">
+                    <label @click="this.create()" class="btn btn-md btn-primary" for="modal_insert_produto">
                         <svg xmlns="http://www.w3.org/2000/svg" height="1em"
                             viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
                             <path
@@ -94,7 +94,7 @@
             </div>
 
             <div class="overflow-x-auto">
-                <div v-if="items[0]">
+                <div v-if="this.items[0]">
                     <table class="table table-zebra">
                         <!-- head -->
                         <thead>
@@ -107,19 +107,19 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="item in items" :key="item.id">
+                            <tr v-for="item in this.items" :key="item.id">
                                 <td>{{ item.id }}</td>
                                 <td>{{ item.nome }}</td>
                                 <td>{{ item.descricao }}</td>
                                 <td>R${{ item.preco }}</td>
                                 <td class="text-center">
-                                    <label for="modal_insert_produto" class="btn btn-info mr-2" @click="edit(item.id)"><svg
+                                    <label for="modal_insert_produto" class="btn btn-info mr-2" @click="this.edit(item.id)"><svg
                                             xmlns="http://www.w3.org/2000/svg" height="1em"
                                             viewBox="0 0 512 512">
                                             <path
                                                 d="M471.6 21.7c-21.9-21.9-57.3-21.9-79.2 0L362.3 51.7l97.9 97.9 30.1-30.1c21.9-21.9 21.9-57.3 0-79.2L471.6 21.7zm-299.2 220c-6.1 6.1-10.8 13.6-13.5 21.9l-29.6 88.8c-2.9 8.6-.6 18.1 5.8 24.6s15.9 8.7 24.6 5.8l88.8-29.6c8.2-2.7 15.7-7.4 21.9-13.5L437.7 172.3 339.7 74.3 172.4 241.7zM96 64C43 64 0 107 0 160V416c0 53 43 96 96 96H352c53 0 96-43 96-96V320c0-17.7-14.3-32-32-32s-32 14.3-32 32v96c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H96z" />
                                         </svg></label>
-                                    <label for="modal_delete" class="btn btn-info" @click="openDelete(item.id)"><svg
+                                    <label for="modal_delete" class="btn btn-info" @click="this.openDelete(item.id)"><svg
                                             xmlns="http://www.w3.org/2000/svg" height="1em"
                                             viewBox="0 0 448 512">
                                             <path
@@ -173,16 +173,16 @@ export default {
     },
     methods: {
         getProdutos() {
-            axios.get(this.apiProdutos).then((res) => {
+            axios.get(this.apiProdutos).then((res: any) => {
                 this.items = res.data['dados']
-            }).catch((error) => {
-                console.error("Erro na solicitação:", error);
+            }).catch(() => {
+                console.error("Erro na solicitação:");
             });
         },
         getTipoProdutos() {
-            axios.get(this.apiTipoProdutos).then((res) => {
+            axios.get(this.apiTipoProdutos).then((res: any) => {
                 this.tipos_produtos = res.data['dados']
-            }).catch((error) => {
+            }).catch((error: any) => {
                 console.error("Erro na solicitação:", error);
             });
         },
@@ -193,11 +193,11 @@ export default {
                 descricao: this.descricao,
                 preco: this.preco,
                 id_tipo_produto: this.id_tipo_produto,
-            })).then((res) => {
+            })).then(() => {
                 this.openModalSuccess()
                 this.resetAttributes()
                 this.getProdutos()
-            }).catch((error) => {
+            }).catch(() => {
                 this.openModalError()
             })
         },
@@ -207,24 +207,24 @@ export default {
                 descricao: this.descricao,
                 preco: this.preco,
                 id_tipo_produto: this.id_tipo_produto,
-            })).then((res) => {
+            })).then(() => {
                 this.openModalSuccess()
                 this.resetAttributes()
                 this.getProdutos()
-            }).catch((error) => {
+            }).catch(() => {
                 this.openModalError()
             });
         },
-        edit(id) {
+        edit(id: number) {
             this.id_produto = id
             this.insert = false
             this.titulo_modal = 'Edite o produto'
-            axios.get(this.apiProdutos + '/' + this.id_produto).then((res) => {
+            axios.get(this.apiProdutos + '/' + this.id_produto).then((res: any) => {
                 this.nome = res.data['dados'][0]['nome']
                 this.descricao = res.data['dados'][0]['descricao']
                 this.preco = res.data['dados'][0]['preco']
                 this.id_tipo_produto = res.data['dados'][0]['id_tipo_produto']
-            }).catch((error) => {
+            }).catch(() => {
                 this.openModalError()
             });
         },
@@ -233,25 +233,25 @@ export default {
             this.insert = true
         },
         openModalSuccess() {
-            let labelElement = document.querySelector('label[for="modal_success"]');
+            let labelElement: any = document.querySelector('label[for="modal_success"]');
             if (labelElement) {
                 labelElement.click();
             }
         },
         openModalError() {
-            let labelElement = document.querySelector('label[for="modal_error"]');
+            let labelElement: any = document.querySelector('label[for="modal_error"]');
             if (labelElement) {
                 labelElement.click();
             }
         },
-        openDelete(id) {
+        openDelete(id: number) {
             this.id_produto = id
         },
         deleteProduto() {
-            axios.delete(this.apiProdutos + '/' + this.id_produto).then((res) => {
+            axios.delete(this.apiProdutos + '/' + this.id_produto).then(() => {
                 this.openModalSuccess()
                 this.getProdutos()
-            }).catch((error) => {
+            }).catch(() => {
                 this.openModalError()
             });
         },
