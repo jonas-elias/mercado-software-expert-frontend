@@ -44,7 +44,7 @@
                         <label class="label">
                             <span class="label-text">Quantidade:</span>
                         </label>
-                        <input @keyup="getValorTotalProduto(item)" v-model="item.quantidade" type="text"
+                        <input @keyup="getValorTotalProduto(item)" v-model="item.quantidade" type="number"
                             placeholder="Quantidade" class="input input-bordered w-full" />
                     </div>
                     <div class="flex justify-between mt-2">
@@ -68,33 +68,46 @@
                 </div>
             </div>
         </div>
-
-        <div class="flex justify-end">
-            <label class="btn btn-outline btn-sm" for="modal_insert_venda">Adicione uma nova venda</label>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="table table-zebra">
-                <!-- head -->
-                <thead>
-                    <tr>
-                        <th>Id</th>
-                        <th>Total da Compra</th>
-                        <th>Total Impostos</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <th>1</th>
-                        <td>Cy Ganderton</td>
-                        <td>Quality Control Specialist</td>
-                    </tr>
-                    <tr>
-                        <th>2</th>
-                        <td>Hart Hagerty</td>
-                        <td>Desktop Support Technician</td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="mt-5">
+            <div class="flex justify-between items-center">
+                <h1 class="text-lg">Vendas</h1>
+                <div>
+                    <label class="btn btn-md btn-primary" for="modal_insert_venda">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="1em"
+                            viewBox="0 0 448 512">
+                            <path
+                                d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z" />
+                        </svg>
+                    </label>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <div v-if="items[0]">
+                    <table class="table table-zebra">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Total da Compra</th>
+                                <th>Total Impostos (porcentagem do valor)</th>
+                                <th>Data venda</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in items" :key="item.id">
+                                <td>{{ item.id }}</td>
+                                <td>R${{ item.total_venda }}</td>
+                                <td>{{ item.total_impostos }}%</td>
+                                <td>{{ item.data_venda }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div v-else>
+                    <div class="flex items-center justify-center h-32">
+                        <p class="text-lg">Nenhum item encontrado.</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -116,18 +129,28 @@ export default {
                 }
             ],
             apiProdutos: 'http://localhost:8000/api/produto',
+            apiVendas: 'http://localhost:8000/api/venda',
             produtos: [],
-            total_venda: 0,
-            total_impostos: 0,
+            total_venda: '',
+            total_impostos: '',
+            items: []
         };
     },
     mounted() {
+        this.getVendas();
         this.getProdutos();
     },
     methods: {
         getProdutos() {
             axios.get(this.apiProdutos).then((res) => {
                 this.produtos = res.data['dados']
+            }).catch((error) => {
+                console.error("Erro na solicitação:", error);
+            });
+        },
+        getVendas() {
+            axios.get(this.apiVendas).then((res) => {
+                this.items = res.data['dados']
             }).catch((error) => {
                 console.error("Erro na solicitação:", error);
             });
@@ -142,20 +165,22 @@ export default {
             console.log(this.produtosGrupo)
         },
         getValorProduto(objeto) {
+            objeto.valor_total = 0
+
             if (objeto.id_produto) {
                 axios.get(this.apiProdutos + '/' + objeto.id_produto).then((res) => {
-                    objeto.valor_total = res.data['dados'][0]['total']
+                    objeto.valor_total = res.data['dados'][0]['total'] == '0.00' ? res.data['dados'][0]['preco'] : res.data['dados'][0]['total']
                     objeto.valor_imposto = res.data['dados'][0]['valor_imposto']
                     objeto.valor_item = res.data['dados'][0]['preco']
-                    this.getValorProduto(objeto)
+                    this.getValorTotalProduto(objeto)
                 }).catch((error) => {
-                    // this.openModalError()
+                    this.openModalError()
                 });
             }
         },
         getValorTotalProduto(objeto) {
-            objeto.total = objeto.quantidade * objeto.valor_total
-
+            objeto.total = objeto.quantidade * (objeto.valor_total ? objeto.valor_total : objeto.valor_item)
+            objeto.total = Number(objeto.total).toFixed(2)
             this.calculaTotalVenda()
         },
         calculaTotalVenda() {
@@ -167,9 +192,21 @@ export default {
                 console.log(element)
             });
 
-            this.total_impostos = total_impostos
-            this.total_venda = total_venda
-        }
+            this.total_impostos = total_impostos.toFixed(2)
+            this.total_venda = total_venda.toFixed(2)
+        },
+        openModalSuccess() {
+            let labelElement = document.querySelector('label[for="modal_success"]');
+            if (labelElement) {
+                labelElement.click();
+            }
+        },
+        openModalError() {
+            let labelElement = document.querySelector('label[for="modal_error"]');
+            if (labelElement) {
+                labelElement.click();
+            }
+        },
     }
 };
 </script>
