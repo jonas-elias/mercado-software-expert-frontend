@@ -14,15 +14,17 @@
                         </svg>
                     </label>
                 </div>
-                <img class="btn btn-ghost normal-case text-xl"
-                    src="https://www.softexpert.com/wp-content/themes/Zephyr-child/icon-softexpert-site.png"
-                    alt="SoftExpert Logo">
+                <a href="https://www.softexpert.com/">
+                    <img class="btn btn-ghost normal-case text-xl"
+                        src="https://www.softexpert.com/wp-content/themes/Zephyr-child/icon-softexpert-site.png"
+                        alt="SoftExpert Logo">
+                </a>
             </div>
             <Navbar />
             <ModalSuccess />
             <ModalError :error-message="this.mensagem_erro" />
             <div class="navbar-end">
-                <a class="btn">GitHub</a>
+                <a href="https://github.com/jonas-elias/mercado-software-expert-frontend.git" class="btn">GitHub</a>
             </div>
         </div>
 
