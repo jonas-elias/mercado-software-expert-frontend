@@ -23,7 +23,7 @@
 
             <Navbar />
             <ModalSuccess />
-            <ModalError />
+            <ModalError :error-message="this.mensagem_erro" />
 
             <div class="navbar-end">
                 <a class="btn">GitHub</a>
