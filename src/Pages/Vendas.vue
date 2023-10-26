@@ -19,6 +19,8 @@
                     alt="SoftExpert Logo">
             </div>
             <Navbar />
+            <ModalSuccess />
+            <ModalError :error-message="this.mensagem_erro" />
             <div class="navbar-end">
                 <a class="btn">GitHub</a>
             </div>
@@ -64,7 +66,7 @@
                 </div>
                 <div class="modal-action">
                     <label for="modal_insert_venda" class="btn">Fechar</label>
-                    <label class="btn" @click="this.saveVenda()">Salvar</label>
+                    <label for="modal_insert_venda" class="btn" @click="this.saveVenda()">Salvar</label>
                 </div>
             </div>
         </div>
@@ -72,9 +74,8 @@
             <div class="flex justify-between items-center">
                 <h1 class="text-lg">Vendas</h1>
                 <div>
-                    <label class="btn btn-md btn-primary" for="modal_insert_venda">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="1em"
-                            viewBox="0 0 448 512">
+                    <label @click="create()" class="btn btn-md btn-primary" for="modal_insert_venda">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512">
                             <path
                                 d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z" />
                         </svg>
@@ -114,11 +115,15 @@
 
 <script lang="ts">
 import Navbar from './Navbar.vue';
+import ModalError from '../Modal/ErrorModal.vue'
+import ModalSuccess from '../Modal/SuccessModal.vue'
 import axios from 'axios'
 
 export default {
     components: {
         Navbar,
+        ModalSuccess,
+        ModalError,
     },
     data() {
         return {
@@ -130,10 +135,12 @@ export default {
             ],
             apiProdutos: 'http://localhost:8000/api/produto',
             apiVendas: 'http://localhost:8000/api/venda',
+            apiItensVenda: 'http://localhost:8000/api/itemVenda',
             produtos: [],
-            total_venda: '',
-            total_impostos: '',
-            items: []
+            total_venda: 0,
+            total_impostos: 0,
+            items: [],
+            mensagem_erro: '',
         };
     },
     mounted() {
@@ -144,15 +151,17 @@ export default {
         getProdutos() {
             axios.get(this.apiProdutos).then((res: any) => {
                 this.produtos = res.data['dados']
-            }).catch(() => {
-                console.error("Erro na solicitação:");
+            }).catch((error) => {
+                this.mensagem_erro = error.response.data.detalhes_erro
+                this.openModalError()
             });
         },
         getVendas() {
             axios.get(this.apiVendas).then((res: any) => {
                 this.items = res.data['dados']
-            }).catch(() => {
-                console.error("Erro na solicitação:");
+            }).catch((error) => {
+                this.mensagem_erro = error.response.data.detalhes_erro
+                this.openModalError()
             });
         },
         addProduct() {
@@ -162,7 +171,23 @@ export default {
             this.produtosGrupo.splice(index, 1);
         },
         saveVenda() {
-            console.log(this.produtosGrupo)
+            axios.post(this.apiItensVenda, JSON.stringify({
+                venda: {
+                    total_venda: this.total_venda,
+                    total_impostos: this.total_impostos
+                },
+                itens_venda: this.produtosGrupo
+            })).then(() => {
+                this.openModalSuccess()
+                this.resetAttributes()
+                this.getVendas()
+            }).catch((error) => {
+                this.mensagem_erro = error.response.data.detalhes_erro
+                this.openModalError()
+            })
+        },
+        create() {
+            this.resetAttributes()
         },
         getValorProduto(objeto: any) {
             objeto.valor_total = 0
@@ -173,7 +198,8 @@ export default {
                     objeto.valor_imposto = res.data['dados'][0]['valor_imposto']
                     objeto.valor_item = res.data['dados'][0]['preco']
                     this.getValorTotalProduto(objeto)
-                }).catch(() => {
+                }).catch((error) => {
+                    this.mensagem_erro = error.response.data.detalhes_erro
                     this.openModalError()
                 });
             }
@@ -189,7 +215,6 @@ export default {
             this.produtosGrupo.forEach((element: any) => {
                 total_impostos += element.valor_imposto * element.quantidade
                 total_venda += element.valor_item * element.quantidade
-                console.log(element)
             });
 
             this.total_impostos = total_impostos.toFixed(2)
@@ -207,6 +232,17 @@ export default {
                 labelElement.click();
             }
         },
+        resetAttributes() {
+            this.produtosGrupo = [
+                {
+                    produto: "", quantidade: 0, total: 0,
+                    valor_item: 0, valor_total: 0, valor_imposto: 0, id_produto: 0
+                }
+            ]
+
+            this.total_impostos = 0
+            this.total_venda = 0
+        }
     }
 };
 </script>

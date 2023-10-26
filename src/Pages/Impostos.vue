@@ -144,6 +144,7 @@ export default {
             insert: true,
             titulo_modal: 'Adicione o imposto',
             apiTipoProdutos: 'http://localhost:8000/api/tipoProduto',
+            mensagem_erro: '',
         }
     },
     components: {
@@ -160,17 +161,18 @@ export default {
             axios.get(this.api).then((res: any) => {
                 this.items = res.data['dados']
             }).catch((error: any) => {
-                console.error("Erro na solicitação:", error);
+                this.mensagem_erro = error.response.data.detalhes_erro
             });
         },
         getTipoProdutos() {
             axios.get(this.apiTipoProdutos).then((res: any) => {
                 this.tipos_produtos = res.data['dados']
             }).catch((error: any) => {
-                console.error("Erro na solicitação:", error);
+                this.mensagem_erro = error.response.data.detalhes_erro
             });
         },
         create() {
+            this.resetAttributes()
             titulo_modal: 'Adicione o imposto'
             this.insert = true
         },
@@ -194,7 +196,8 @@ export default {
                 this.openModalSuccess()
                 this.resetAttributes()
                 this.getImpostos()
-            }).catch(() => {
+            }).catch((error) => {
+                this.mensagem_erro = error.response.data.detalhes_erro
                 this.openModalError()
             })
         },
@@ -205,7 +208,8 @@ export default {
             axios.get(this.api + '/' + this.id_imposto).then((res: any) => {
                 this.valor = res.data['dados'][0]['valor']
                 this.id_tipo_produto = res.data['dados'][0]['id_tipo_produto']
-            }).catch(() => {
+            }).catch((error) => {
+                this.mensagem_erro = error.response.data.detalhes_erro
                 this.openModalError()
             });
         },
@@ -217,7 +221,8 @@ export default {
                 this.openModalSuccess()
                 this.resetAttributes()
                 this.getImpostos()
-            }).catch(() => {
+            }).catch((error) => {
+                this.mensagem_erro = error.response.data.detalhes_erro
                 this.openModalError()
             });
         },
@@ -233,7 +238,8 @@ export default {
                 this.openModalSuccess()
                 this.getImpostos()
                 this.getTipoProdutos()
-            }).catch(() => {
+            }).catch((error) => {
+                this.mensagem_erro = error.response.data.detalhes_erro
                 this.openModalError()
             });
         },
