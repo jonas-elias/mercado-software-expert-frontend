@@ -89,7 +89,7 @@
                             <tr>
                                 <th>Id</th>
                                 <th>Total da Compra</th>
-                                <th>Total Impostos (porcentagem do valor)</th>
+                                <th>Total Impostos</th>
                                 <th>Data venda</th>
                             </tr>
                         </thead>
@@ -97,7 +97,7 @@
                             <tr v-for="item in this.items" :key="item.id">
                                 <td>{{ item.id }}</td>
                                 <td>R${{ item.total_venda }}</td>
-                                <td>{{ item.total_impostos }}%</td>
+                                <td>R${{ item.total_impostos }}</td>
                                 <td>{{ item.data_venda }}</td>
                             </tr>
                         </tbody>
