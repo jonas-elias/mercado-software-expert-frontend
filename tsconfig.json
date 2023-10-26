@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "allowJs": true,
+    "noImplicitThis": false,
     "target": "ES2020",
     "useDefineForClassFields": true,
     "module": "ESNext",
@@ -13,13 +15,13 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "preserve",
+    "noUnusedLocals": false,
 
     /* Linting */
     "strict": true,
-    "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "src/vite-env.d.js", "src/router.js", "src/main.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
